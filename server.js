@@ -1,18 +1,35 @@
 /*
-In the node.js intro tutorial (http://nodejs.org/), they show a basic tcp
-server, but for some reason omit a client connecting to it.  I added an
-example at the bottom.
-Save the following server in example.js:
+Glados V1.0.0 server
 */
 
+console.log("              .,-:;//;:=,")
+console.log("          . :H@@@MM@M#H/.,+%;,")
+console.log("       ,/X+ +M@@M@MM%=,-%HMMM@X/,")
+console.log("     -+@MM; $M@@MH+-,;XMMMM@MMMM@+-")
+console.log("    ;@M@@M- XM@X;. -+XXXXXHHH@M@M#@/.")
+console.log("  ,%MM@@MH ,@%=             .---=-=:=,.")
+console.log("  =@#@@@MX.,                -%HX$$%%%:;")
+console.log(" =-./@M@M$                   .;@MMMM@MM:")
+console.log(" X@/ -$MM/                    . +MM@@@M$")
+console.log(",@M@H: :@:                    . =X#@@@@-")
+console.log(",@@@MMX, .                    /H- ;@M@M=")
+console.log(".H@@@@M@+,                    %MM+..%#$.")
+console.log(" /MMMM@MMH/.                  XM@MH; =;")
+console.log("  /%+%$XHH@$=              , .H@@@@MX,")
+console.log("   .=--------.           -%H.,@@@@@MX,")
+console.log("   .%MM@@@HHHXX$$$%+- .:$MMX =M@@MM%.")
+console.log("     =XMMM@MM@MM#H;,-+HMM@M+ /MMMX=")
+console.log("       =%@M@M#@$-.=$@MM@@@M; %M%=")
+console.log("         ,:+$+-,/H#MMMMMMM@= =,")
+console.log("              =++%%%%+/:-.")
 var net = require('net');
-
+/* create server here*/
 const server = net.createServer((socket) => {
-  socket.write('Echo server\r\n');
-	socket.on('data', function(data) {
-		console.log('DATA :' + data);
-		/* client.destroy(); // kill client after server's response */
-	});
+
+  socket.on('data', function(data) {
+    console.log('DATA :' + data);
+
+  });
 }).on('error', (err) => {
   // handle errors here
   throw err;
@@ -20,20 +37,7 @@ const server = net.createServer((socket) => {
 
 
 
-// grab a random port.
 
-server.listen(1337, "localhost",() => {
+server.listen(1337, "localhost", () => {
   console.log('opened server on', server.address());
 });
-/*
-And connect with a tcp client from the command line using netcat, the *nix
-utility for reading and writing across tcp/udp network connections.  I've only
-used it for debugging myself.
-$ netcat 127.0.0.1 1337
-You should see:
-> Echo server
-*/
-
-/* Or use this example tcp client written in node.js.  (Originated with
-example code from
-http://www.hacksparrow.com/tcp-socket-programming-in-node-js.html.) */
