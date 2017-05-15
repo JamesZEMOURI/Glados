@@ -21,16 +21,20 @@ if (typeof program.password === 'undefined' || typeof program.username === 'unde
   process.exit(1);
 
 } else {
-  if (net.isIP(program.ip) === 0) {} else {
     var net = require('net');
+    var NodeRSA = require('node-rsa');
+    var key = new NodeRSA({b: 512});
     var client = new net.Socket();
+
     client.connect(1337, program.ip, function() {
       console.log('CONNECTED: ' + client.remoteAddress + ':' + client.remotePort);
-      var header = "GLADOS protrocol version 1.0.0"
-      client.write('|' + header + '|' + program.username + '|' + program.password + '|' + Valuecommand + '|');
+      var header = '|GLADOS protrocol version 1.0.0|';
+      var body = key.encrypt(program.username + '|' + program.password + '|' + Valuecommand + '|','base64');
+      console.log(key.public);
+      client.write(header+body);
       client.destroy();
     });
-  }
+
 }
 
 /*
