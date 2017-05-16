@@ -23,12 +23,26 @@ console.log("       =%@M@M#@$-.=$@MM@@@M; %M%=")
 console.log("         ,:+$+-,/H#MMMMMMM@= =,")
 console.log("              =++%%%%+/:-.")
 var net = require('net');
+var NodeRSA = require('node-rsa');
+var key = new NodeRSA({
+  b: 512
+});
+
 /* create server here*/
 const server = net.createServer((socket) => {
+  var KEYpublic = key.exportKey('public');
 
-  socket.on('data', function(data) {
-    console.log('DATA :' + data);
+  var BUFFERpublic = Buffer.from(KEYpublic, 'ascii');
+  console.log(BUFFERpublic);
+  socket.write(BUFFERpublic);
 
+
+  socket.on('data', function(DATAencrypted) {
+    /*when master send crypted msg*/
+    console.log(DATAencrypted);
+    var DATAdecrypted = key.decrypt(DATAencrypted, 'utf8');
+    console.log(DATAdecrypted);
+    /*socket.remoteAddress l'ip d'ou vien la socket*/
   });
 }).on('error', (err) => {
   // handle errors here
@@ -40,4 +54,5 @@ const server = net.createServer((socket) => {
 
 server.listen(1337, "localhost", () => {
   console.log('opened server on', server.address());
+  console.log('==================================================');
 });
