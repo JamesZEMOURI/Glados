@@ -31,7 +31,7 @@ if (typeof program.password === 'undefined' || typeof program.username === 'unde
 
   client.connect(1337, program.ip, function() {
     console.log('CONNECTED: ' + client.remoteAddress + ':' + client.remotePort);
-
+    client.write('ok');
 
 
   });

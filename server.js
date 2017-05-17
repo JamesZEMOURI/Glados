@@ -32,60 +32,72 @@ function parse_json_data(encrypted_data) {
     return null;
   }
 }
-var key_server = new NodeRSA({
-  b: 512
-});
+
 
 /* create server here*/
 const server = net.createServer((socket) => {
-  var public_key_server = key_server.exportKey('public');
 
-  var public_key_server_buffer = Buffer.from(public_key_server, 'ascii');
-  socket.write(public_key_server_buffer);
-  console.log(public_key_server_buffer);
+
 
   /*when master send crypted msg*/
-  socket.on('data', function(encrypted_data) {
-    /*check if it is realy master*/
-    var json_content = parse_json_data(encrypted_data);
-    if (json_content != null) {
-      var public_key_server_sign = json_content.public_key_server_sign;
-      console.log(json_content.public_key_server_sign);
-      if (key_server.verify(public_key_server_buffer, public_key_server_sign), 'base64') {
+  socket.on('data', function(data) {
+
+    console.log(data);
+    if (data == 'ok') {
+
+      var key_server = new NodeRSA({
+        b: 512
+      });
+      var public_key_server = key_server.exportKey('public');
+      var public_key_server_buffer = Buffer.from(public_key_server, 'ascii');
+
+
+      var encrypted_data = data;
+      socket.write(public_key_server_buffer);
+      console.log(public_key_server_buffer);
+      /*check if it is realy master*/
+      var json_content = parse_json_data(encrypted_data);
+      if (json_content != null) {
+        var public_key_server_sign = json_content.public_key_server_sign;
+        if (key_server.verify(public_key_server_buffer, public_key_server_sign), 'base64') {
 
 
 
 
-        var encrypted_data = json_content.encrypted_data;
+          var encrypted_data = json_content.encrypted_data;
 
-        /*decrypt master msg*/
-        var decrypted_data = key_server.decrypt(encrypted_data, 'utf8');
+          /*decrypt master msg*/
+          var decrypted_data = key_server.decrypt(encrypted_data, 'utf8');
 
-        /*parse data*/
-        var json_content = parse_json_data(decrypted_data);
-        /*check if it is realy master*/
-        if (json_content.type === 'master') {
+          /*parse data*/
+          var json_content = parse_json_data(decrypted_data);
           /*check if it is realy master*/
-          if (json_content.password === 'ok') {
+          if (json_content.type === 'master') {
+            /*check if it is realy master*/
+            if (json_content.username === 'ok') {
+              if (json_content.password === 'ok') {
 
-            var public_key_master_buffer = json_content.public_key_master_buffer;
-            /*check if it is a real key*/
-            if (key_server.isEmpty(public_key_master_buffer) != true && key_server.getMaxMessageSize(public_key_master_buffer) === 22) {
 
-              var public_key_master = new NodeRSA(public_key_master_buffer);
+                var public_key_master_buffer = json_content.public_key_master_buffer;
+                /*check if it is a real key*/
+                if (key_server.isEmpty(public_key_master_buffer) != true && key_server.getMaxMessageSize(public_key_master_buffer) === 22) {
 
-              /*crypt responce msg for master*/
-              var encrypted_data = public_key_master.encrypt({
-                "responce": 'Hello Master'
-              });
-              console.log(encrypted_data);
+                  var public_key_master = new NodeRSA(public_key_master_buffer);
 
+                  /*crypt responce msg for master*/
+                  var encrypted_data = public_key_master.encrypt({
+                    "responce": 'Hello Master'
+                  });
+                  console.log(encrypted_data);
+
+                }
+              }
             }
           }
+
+          /*socket.remoteAddress l'ip d'ou vien la socket*/
+
         }
-
-        /*socket.remoteAddress l'ip d'ou vien la socket*/
-
       }
     }
   });
