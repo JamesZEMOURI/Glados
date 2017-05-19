@@ -78,16 +78,16 @@ const server = net.createServer((socket) => {
       if (msg[1] != undefined) { /* si le deuxieme message n'est pas vide alors*/
 
         var encrypted_data_buffer = msg[1];
-        console.log(encrypted_data_buffer);
+
         var json_content = parse_json_data(encrypted_data_buffer);
 
-        if (json_content != undefined) { /*si il contient des donnée au format json  */
+        if (json_content != undefined) { /*si il contient des donnée au format json alors */
           var public_key_server_sign = json_content.public_key_server_sign;
           console.log(public_key_server_sign);
 
           console.log(public_key_server_buffer);
-          if (key_server.verify(public_key_server_buffer, public_key_server_sign, 'base64')) { /*vérification de la signiature de la clé public server envoier a master*/
-            console.log('ok');
+          if (key_server.verify(public_key_server_buffer, public_key_server_sign, 'base64') == false) { /*vérification de la signiature de la clé public server envoier a master*/
+
             var encrypted_data = json_content.encrypted_data;
 
             var decrypted_data = decrypt(key_server, encrypted_data);
@@ -109,9 +109,9 @@ const server = net.createServer((socket) => {
                       var encrypted_data = public_key_master.encrypt({
                         "responce": 'Hello Master'
                       }, 'base64');
-                      console.log(encrypted_data.toString('utf8'));
+                      console.log(json_content.header+'|'+json_content.version+'|'+json_content.command);
 
-                    } /*  on vérifie si la clé est conforme  */
+                    } /*  on vérifie si la clé est conforme et alors */
                   } /*  password  */
                 } /*  username  */
               } /*  master  */
@@ -119,7 +119,7 @@ const server = net.createServer((socket) => {
           }else{
             console.log("wtf");
           }/*vérification de la signiature de la clé public server envoier a master*/
-        }/*si il contient des donnée au format json  */
+        }/*si il contient des donnée au format json alors */
       }/* si le deuxieme message n'est pas vide alors*/
     } /*si la clé de communication est valide alors*/
     console.log('==================================================');
