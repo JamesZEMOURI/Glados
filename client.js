@@ -4,7 +4,8 @@ var client = new net.Socket();
 client.connect(1337, '127.0.0.1', function() {
 	 console.log('CONNECTED: ' + client.remoteAddress +':'+ client.remotePort);
 	client.write('Hello, server! Love, Client.');
-
+client.write('Hello, server! Love, Client.');
+client.write('Hello, server! Love, Client.');
 });
 
 client.on('data', function(data) {
