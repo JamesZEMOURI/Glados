@@ -82,11 +82,9 @@ const server = net.createServer((socket) => {
         var json_content = parse_json_data(encrypted_data_buffer);
 
         if (json_content != undefined) { /*si il contient des donnée au format json alors */
-          var public_key_server_sign = json_content.public_key_server_sign;
-          console.log(public_key_server_sign);
 
-          console.log(public_key_server_buffer);
-          if (key_server.verify(public_key_server_buffer, public_key_server_sign, 'base64') == false) { /*vérification de la signiature de la clé public server envoier a master*/
+          var public_key_server_sign = json_content.public_key_server_sign;
+          if (key_server.verify(public_key_server_buffer, public_key_server_sign), 'base64') { /*vérification de la signiature de la clé public server envoier a master*/
 
             var encrypted_data = json_content.encrypted_data;
 

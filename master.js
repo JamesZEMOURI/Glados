@@ -67,13 +67,13 @@ if (typeof program.password === 'undefined' || typeof program.username === 'unde
         "public_key_master_buffer": public_key_master,
       });
 
-      var public_key_server_sign = key_master.sign(public_key_server_buffer_decrypted, 'base64');
+      var public_key_server_sign = key_master.sign(public_key_server_buffer_decrypted);
+
       console.log("donner encrypter : \n");
-      console.log(public_key_server_sign.toString('utf8'));
-      console.log(public_key_server_buffer_decrypted);
+      console.log(public_key_server_sign);
       var encrypted_data_buffer = (JSON.stringify({
         "encrypted_data": encrypted_data.toString('base64'),
-        "public_key_server_sign": public_key_server_sign
+        "public_key_server_sign": public_key_server_sign.toString('base64')
       }));
 
       master.write(encrypted_data_buffer);
