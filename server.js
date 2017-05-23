@@ -56,69 +56,77 @@ global.comunication_key = new NodeRSA(
 
 /*creation du server*/
 const server = net.createServer((socket) => {
+  time = Math.floor(new Date() / 1000).toString(16);
   /*création de la clé RSA server*/
   var key_server = new NodeRSA({
     b: 512
   });
+  var public_key_server_buffer = key_server.exportKey('public');
+  var public_key_server_buffer_crypted = global.comunication_key.encrypt(public_key_server_buffer);
   msg = [];
   /*data*/
   socket.on('data', function(data) {
 
     msg.push(data);
     var comunication_key_msg = decrypt(global.comunication_key, msg[0]);
-    if (comunication_key_msg == 'da39a3ee5e6b4b0d3255bfef95601890afd80709') {
-      var public_key_server_buffer = key_server.exportKey('public');
-      if (msg[1] == undefined) { /* si le deuxieme message na pas était resus alors*/
 
-        var public_key_server_buffer_crypted = global.comunication_key.encrypt(public_key_server_buffer);
+    if (comunication_key_msg != undefined) { /*si la clé d'écripter n'est pas vide alors*/
 
-        socket.write(public_key_server_buffer_crypted);
-      } /* si le deuxieme message na pas était resus alors*/
+      if (comunication_key_msg == time) { /*si la clé de communication est valide alors*/
 
-      if (msg[1] != undefined) { /* si le deuxieme message n'est pas vide alors*/
+        if (msg[1] == undefined) { /* si le deuxieme message na pas était resus alors*/
+          console.log('====================================================================================');
 
-        var encrypted_data_buffer = msg[1];
+          socket.write(public_key_server_buffer_crypted);
+        } /* si le deuxieme message na pas était resus alors*/
 
-        var json_content = parse_json_data(encrypted_data_buffer);
+        if (msg[1] != undefined) { /* si le deuxieme message n'est pas vide alors*/
 
-        if (json_content != undefined) { /*si il contient des donnée au format json alors */
+          var encrypted_data_buffer = msg[1];
 
-          var public_key_server_sign = json_content.public_key_server_sign;
-          if (key_server.verify(public_key_server_buffer, public_key_server_sign), 'base64') { /*vérification de la signiature de la clé public server envoier a master*/
+          var json_content = parse_json_data(encrypted_data_buffer);
 
-            var encrypted_data = json_content.encrypted_data;
+          if (json_content != undefined) { /*si il contient des donnée au format json alors */
 
-            var decrypted_data = decrypt(key_server, encrypted_data);
+            var public_key_server_sign = json_content.public_key_server_sign;
+            if (key_server.verify(public_key_server_buffer, public_key_server_sign), 'base64') { /*vérification de la signiature de la clé public server envoier a master*/
 
-            if (decrypted_data != undefined) { /*si les donnée on était décrypter alors */
+              var encrypted_data = json_content.encrypted_data;
 
-              var json_content = parse_json_data(decrypted_data);
+              var decrypted_data = decrypt(key_server, encrypted_data);
 
-              if (json_content.type === 'master') {
-                if (json_content.username === 'ok') {
-                  if (json_content.password === 'ok') {
+              if (decrypted_data != undefined) { /*si les donnée on était décrypter alors */
 
-                    var public_key_master_buffer = json_content.public_key_master_buffer;
+                var json_content = parse_json_data(decrypted_data);
 
-                    if (key_server.isEmpty(public_key_master_buffer) != true && key_server.getMaxMessageSize(public_key_master_buffer) === 22) {
+                if (json_content.type === 'master') {
+                  if (json_content.username === 'ok') {
+                    if (json_content.password === 'ok') {
 
-                      var public_key_master = new NodeRSA(public_key_master_buffer);
+                      var public_key_master_buffer = json_content.public_key_master_buffer;
 
-                      var encrypted_data = public_key_master.encrypt({
-                        "responce": 'Hello Master'
-                      }, 'base64');
-                      console.log(json_content.header+'|'+json_content.version+'|'+json_content.command);
+                      if (key_server.isEmpty(public_key_master_buffer) != true && key_server.getMaxMessageSize(public_key_master_buffer) === 22) {
 
-                    } /*  on vérifie si la clé est conforme et alors */
-                  } /*  password  */
-                } /*  username  */
-              } /*  master  */
-            } /*si les donnée on était décrypter alors */
-          }/*vérification de la signiature de la clé public server envoier a master*/
-        }/*si il contient des donnée au format json alors */
-      }/* si le deuxieme message n'est pas vide alors*/
-    } /*si la clé de communication est valide alors*/
-    console.log('==================================================');
+                        var public_key_master = new NodeRSA(public_key_master_buffer);
+
+                        var encrypted_data = public_key_master.encrypt({
+                          "responce": 'Hello Master'
+                        }, 'base64');
+                        console.log('[' + time + '] ' + json_content.header + '|' + json_content.version + '|' + json_content.command);
+
+                      } /*  on vérifie si la clé est conforme et alors */
+                    } /*  password  */
+                  } /*  username  */
+                } /*  master  */
+              } /*si les donnée on était décrypter alors */
+            } /*vérification de la signiature de la clé public server envoier a master*/
+          } /*si il contient des donnée au format json alors */
+        } /* si le deuxieme message n'est pas vide alors*/
+      } else {
+        console.log('bad time');
+      } /*si la clé de communication est valide alors*/
+    } /*si la clé d'écripter n'est pas vide alors*/
+    socket.destroy();
   }); /* a la reception de donner faire*/
 
 
